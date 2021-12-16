@@ -14,6 +14,7 @@ public class FlashlightSelect : Grabber
     [SerializeField] private AnimationCurve scaleAcceleration;
 
     public bool HasObjectsSelected { get; set; }
+    public Grabbable GrabbedObject { get; set; }
 
     public InputActionProperty selectAction;
     public InputActionProperty grabAction;
@@ -29,7 +30,6 @@ public class FlashlightSelect : Grabber
     private SelectionCone selectionColl;
     private Vector3 controllerStartPos;
     private Grabbable currentObject;
-    private Grabbable grabbedObject;
     private SphereCollider bubbleColl;
 
     private bool isKinematicSettings;
@@ -121,7 +121,7 @@ public class FlashlightSelect : Grabber
 
     public override void Grab(InputAction.CallbackContext context)
     {
-        if (currentObject && grabbedObject == null)
+        if (currentObject && GrabbedObject == null)
         {
             if (currentObject.GetCurrentGrabber() != null)
             {
@@ -131,29 +131,29 @@ public class FlashlightSelect : Grabber
             if(currentObject.tag == "Clone")
             {
                 isQueuedToReset = true;
-                grabbedObject = currentObject.GetComponentInParent<DisplayRing>().Select(currentObject.gameObject).GetComponent<Grabbable>();
-                grabbedObject.SetCurrentGrabber(this);
+                GrabbedObject = currentObject.GetComponentInParent<DisplayRing>().Select(currentObject.gameObject).GetComponent<Grabbable>();
+                GrabbedObject.SetCurrentGrabber(this);
             }
             else
             {
-                grabbedObject = currentObject;
-                grabbedObject.SetCurrentGrabber(this);
+                GrabbedObject = currentObject;
+                GrabbedObject.SetCurrentGrabber(this);
 
             }
 
-            if (grabbedObject.GetComponent<Rigidbody>())
+            if (GrabbedObject.GetComponent<Rigidbody>())
             {
-                isKinematicSettings = grabbedObject.GetComponent<Rigidbody>().isKinematic;
-                hasGravitySettings = grabbedObject.GetComponent<Rigidbody>().useGravity;
-                grabbedObject.GetComponent<Rigidbody>().isKinematic = true;
-                grabbedObject.GetComponent<Rigidbody>().useGravity = false;
+                isKinematicSettings = GrabbedObject.GetComponent<Rigidbody>().isKinematic;
+                hasGravitySettings = GrabbedObject.GetComponent<Rigidbody>().useGravity;
+                GrabbedObject.GetComponent<Rigidbody>().isKinematic = true;
+                GrabbedObject.GetComponent<Rigidbody>().useGravity = false;
             }
 
-            grabbedObject.transform.parent = this.transform;
+            GrabbedObject.transform.parent = this.transform;
             if (currentObject.tag == "Clone")
             {
                 currentObject.tag = "Grabbable";
-                grabbedObject.transform.localPosition = Vector3.zero;
+                GrabbedObject.transform.localPosition = Vector3.zero;
             }
 
 
@@ -162,17 +162,17 @@ public class FlashlightSelect : Grabber
 
     public override void Release(InputAction.CallbackContext context)
     {
-        if (grabbedObject)
+        if (GrabbedObject)
         {
-            if (grabbedObject.GetComponent<Rigidbody>())
+            if (GrabbedObject.GetComponent<Rigidbody>())
             {
-                grabbedObject.GetComponent<Rigidbody>().isKinematic = isKinematicSettings;
-                grabbedObject.GetComponent<Rigidbody>().useGravity = hasGravitySettings;
+                GrabbedObject.GetComponent<Rigidbody>().isKinematic = isKinematicSettings;
+                GrabbedObject.GetComponent<Rigidbody>().useGravity = hasGravitySettings;
             }
 
-            grabbedObject.SetCurrentGrabber(null);
-            grabbedObject.transform.parent = null;
-            grabbedObject = null;
+            GrabbedObject.SetCurrentGrabber(null);
+            GrabbedObject.transform.parent = null;
+            GrabbedObject = null;
         }
     }
 
